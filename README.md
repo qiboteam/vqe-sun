@@ -14,7 +14,7 @@ In order to execute the following code, the library `Qibo` (available in  and en
 
 - `quspin_functions.py`: functions used for the exact diagonalization in Quspin language.
 
-- `/data_vqe`: folder where the data will be saved in.
+- `/data_vqe`: folder where the data will be saved in. Example of data used in entropy plots.
 
 ---
 
