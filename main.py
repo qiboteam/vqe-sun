@@ -6,7 +6,7 @@ Created on Thu Jun 17 10:26:37 2021
 @author: Carlos Bravo-Prieto & Sergi Ramos-Calderer
 """
 import numpy as np
-import functions_vqe as fun
+import functions as fun
 from qibo import set_backend, models
 from scipy.optimize import minimize
 import argparse
@@ -64,7 +64,6 @@ def main(N, L, t, U, V, r, layers, phi_max, phi_num, backend, exact, perturb):
         print("\n")
         print("Layers: ", l)
         for i in phi:
-            initial_parameters = np.random.uniform(0, 2*np.pi, l*((L-1)*N+(N-1)*L+N*L)+N)
             print("Flux: ", i)
             hamiltonian_jw = fun.FH_hamiltonian(
                 N=N, L=L, t=t, U=U, V=V, phi=i, r=r)
@@ -85,13 +84,15 @@ def main(N, L, t, U, V, r, layers, phi_max, phi_num, backend, exact, perturb):
                 initial_parameters = 0.001*np.pi*(-1+2*np.random.random(len(params)))+params
             else:
                 initial_parameters = params
-        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_CURRENT_4",
+            if i == 0.5:
+                initial_parameters = np.random.uniform(0, 2*np.pi, l*((L-1)*N+(N-1)*L+N*L)+N)
+        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_CURRENT",
                    [persistent_current_vector], delimiter=", ", newline="\n")
-        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_ENERGY_4",
+        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_ENERGY",
                    [energy_vector], delimiter=", ", newline="\n")
-        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_ENTROPY_4",
+        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_ENTROPY",
                    [entropies], delimiter=", ", newline="\n")
-        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_PARAMETERS_4",
+        np.savetxt(f"data_22/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_r_{r}_(1,1,1)_PARAMETERS",
                    parameters, delimiter=", ", newline="\n")
 
 
