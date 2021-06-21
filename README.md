@@ -5,8 +5,10 @@ We present the code used in the paper Variational Quantum Eigensolver for SU(N) 
 
 In order to execute the following code, the library `Qibo` (available in  and enhanced by ) is needed for the quantum simulation of the VQE and the library Quspin (available in ) is required for the exact diagonalization.
 
-#### Files
+
 ---
+
+#### Files
 
 - `main.py`: main program.
 
