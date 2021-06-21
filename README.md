@@ -3,7 +3,7 @@
 
 We present the code used in the paper Variational Quantum Eigensolver for SU(N) Fermions, where a VQE is used to recover the ground state of the Fermi-Hubbard model for arbitrary spin SU(`N`) and number of sites `L` using an extended Jordan-Wigner mapping into `N*L` qubits.
 
-In order to execute the following code, the library `Qibo` (available in https://github.com/qiboteam/qibo and enhanced by https://github.com/qiboteam/qibotf) is needed for the quantum simulation of the VQE and the library Quspin (available in https://github.com/weinbe58/QuSpin) is required for the exact diagonalization.
+In order to execute the following code, the library Qibo (available in https://github.com/qiboteam/qibo and enhanced by https://github.com/qiboteam/qibotf) is needed for the quantum simulation of the VQE and the library Quspin (available in https://github.com/weinbe58/QuSpin) is required for the exact diagonalization.
 
 
 ---
