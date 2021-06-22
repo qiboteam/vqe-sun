@@ -37,7 +37,7 @@ In order to recover the results for the VQE for SU(N) fermions, the file `main.p
 - `--phi_num` (int): number of flux values to take into account from 0 to phi_max. (default = 25)
 - `--backend` (str): qibo backend to use for the computation. (default = "qibotf")
 - `--exact`:  add this flag to get the values using exact diagonalization. 
-- `--perturb`: add this flag to do a small perturbation to the last best parameters before the next execution.
+- `--perturb`: add this flag to do a small perturbation to the last best parameters before the next execution (Only for VQE).
 
 **Returns**
 
