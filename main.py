@@ -47,7 +47,7 @@ def main(N, L, t, U, V, r, layers, phi_max, phi_num, backend, exact, perturb):
 		Np = (1 for _ in range(N))
 		mu = 0
 		for _ in phi:
-			energy, state = qfun.f(N, L, Np, closed, t, V, U, mu, phi)
+			energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi)
 			exact.append(energy)
 			np.savetxt(f"data_vqe/{N}_{L}_Hubbard_exact_U_{U}_V_{V}_r_{r}_(1,1,1)_EXACT_ENERGY",
 			           exact, delimiter=", ", newline="\n")
