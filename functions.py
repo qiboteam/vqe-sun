@@ -11,8 +11,8 @@ from qibo.hamiltonians import SymbolicHamiltonian
 from qibo.symbols import X, Y, Z
 
 
-def hamiltonian_helper(N=None, L=None, closed=None, t=None, U=None, V=None, mu=None, phi=None):
-	"""Creates the Hamiltonian used as for the cost function of the variational algorithm.
+def _helper(N=None, L=None, closed=None, t=None, U=None, V=None, mu=None, phi=None):
+	"""Hamiltonain helper function.
 		Args:
 			N (int): SU(N) components of the fermions.
 			L (int): number of sites of the instance.
@@ -24,7 +24,7 @@ def hamiltonian_helper(N=None, L=None, closed=None, t=None, U=None, V=None, mu=N
 			phi (float): flux.
 
 		Returns:
-			hamiltonian (qibo.hamiltonians): Hamiltonian for the EFM model for SU(N) in L sites.
+			parameters (list): list of parameters specified by the caller
 
 		"""
 	
@@ -75,7 +75,7 @@ def FH_hamiltonian(N, L, closed, t, U, V, mu, phi):
 
 	"""
 	
-	nqubits, t_list, V_list, theta, fV, C = hamiltonian_helper(N, L, closed, t, V, U, mu, phi)
+	nqubits, t_list, V_list, theta, fV, C = _helper(N, L, closed, t, U, V, mu, phi)
 	
 	# Define Hamiltonian using these symbols
 	def sigma_plus(k):
@@ -152,8 +152,9 @@ def create_circuit(N, Np, L, layers):
 	
 	# Creates a state of the relevant basis
 	for i, n in enumerate(Np):
-		circuit.add(gates.X(i + n * L))
-		circuit.add(gates.RZ(i + n * L, theta=0))
+		for j in range(n):
+			circuit.add(gates.X(j + i * L))
+			circuit.add(gates.RZ(j + i * L, theta=0))
 	# n layers
 	for l in range(layers):
 		for s in range(N):
@@ -185,9 +186,8 @@ def entropy_half_chain(params, N, Np, L, layers):
 	Returns:
 		entropy (float): value of the half chain entropy.
 	"""
-	nqubits = N * L
-	entropy = callbacks.EntanglementEntropy(
-		list(np.linspace(0, int(nqubits / 2) - 1, int(nqubits / 2))))
+	
+	entropy = callbacks.EntanglementEntropy()
 	circuit = create_circuit(N, Np, L, layers)
 	circuit.add(gates.CallbackGate(entropy))
 	circuit.set_parameters(params)
@@ -209,7 +209,7 @@ def current_hamiltonian(N, L, closed, t, phi):
 
 	"""
 	
-	n, t_list, theta = hamiltonian_helper(N, L, closed, t, phi=phi)
+	n, t_list, theta = _helper(N, L, closed, t, phi=phi)
 	
 	# Define Hamiltonian using these symbols
 	def sigma_plus(k):

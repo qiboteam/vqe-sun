@@ -43,26 +43,25 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
 	phi = np.linspace(0, phi_max, phi_num)
 	closed = not open_chain
 	if Np == -1:
-		Np = (1 for _ in range(N))
+		Np = [1 for _ in range(N)]
 	if exact:
 		import quspin_functions as qfun
 		exact = []
-		for _ in phi:
-			energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi)
-			exact.append(energy)
+		for i in phi:
+			energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, i)
+			exact.append(energy[0])
 			np.savetxt(f"data_vqe/{N}_{L}_Hubbard_exact_U_{U}_V_{V}_(1,1,1)_EXACT_ENERGY",
 			           exact, delimiter=", ", newline="\n")
 			np.savetxt(f"data_vqe/{N}_{L}_Hubbard_exact_U_{U}_V_{V}_(1,1,1)_EXACT_STATE",
-			           state, delimiter=", ", newline="\n")
+			           state[0], delimiter=", ", newline="\n")
 	
 	for l in range(1, layers + 1):
-		initial_parameters = np.random.uniform(0, 4 * np.pi,
-		                                       l * ((L - 1) * N + (N - 1) * L + N * L) + N)
+		circuit = fun.create_circuit(N, Np, L, l)
+		initial_parameters = np.random.uniform(0, 4 * np.pi, len(circuit.get_parameters()))
 		persistent_current_vector = []
 		energy_vector = []
 		entropies = []
 		parameters = []
-		circuit = fun.create_circuit(N, Np, L, l)
 		print("\n")
 		print("Layers: ", l)
 		for i in phi:
@@ -77,7 +76,7 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
 			persistent_current = fun.compute_persistent_current(
 				params, circuit, hamiltonian_persistent_current)
 			persistent_current_vector.append(persistent_current)
-			entropy_half = fun.entropy_half_chain(params, N, Np, L, layers)
+			entropy_half = fun.entropy_half_chain(params, N, Np, L, l)
 			entropies.append(entropy_half)
 			if perturb:
 				initial_parameters = 0.001 * np.pi * np.random.normal(size=len(params)) + params
