@@ -27,17 +27,19 @@ In order to recover the results for the VQE for SU(N) fermions, the file `main.p
 **Arguments**
 
 - `--N` (int): SU(N) components of the fermions. (default = 3)
+- `--Np` (list of ints): number of spins per color. (default = 1 per color)
 - `--L` (int): number of sites of the instance. (default = 3)
-- `--t` (float): constant for the hopping terms. (default = 1.0)
+- `--t` (float or list(float)): constant for the hopping terms. (default = 1.0)
 - `--U` (float): on-site interaction. (default = 1.0)
-- `--V` (float): interaction between fermions at distance r=1. (default = 0.0)
-- `--r` (int): range of the interaction. (default = 1)
+- `--V` (float or list(float)): interaction between fermions at distance > 0. (default = 0.0)
+- `--mu` (float): chemical potential.
 - `--layers` (int): number of maximum layers of the ansatz for the VQE implementation. (default = 3)
 - `--phi_max` (float): maximum flux value. (default = 0.5)
 - `--phi_num` (int): number of flux values to take into account from 0 to phi_max. (default = 25)
 - `--backend` (str): qibo backend to use for the computation. (default = "qibotf")
 - `--exact`:  add this flag to get the values using exact diagonalization. 
 - `--perturb`: add this flag to do a small perturbation to the last best parameters before the next execution.
+- `--open_chain`: add this flag to change to an open chain rather than a closed one.
 
 **Returns**
 
