@@ -40,56 +40,60 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
     """
     
     set_backend(backend)
-    phi = np.linspace(0, phi_max, phi_num)
+    phi_list = np.linspace(0, phi_max, phi_num)
     closed = not open_chain
     if Np == -1:
         Np = [1 for _ in range(N)]
     if exact:
         import quspin_functions as qfun
-        exact = []
-        for i in phi:
-            energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, i)
-            exact.append(energy[0])
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_exact_U_{U}_V_{V}_(1,1,1)_EXACT_ENERGY",
-                       exact, delimiter=", ", newline="\n")
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_exact_U_{U}_V_{V}_(1,1,1)_EXACT_STATE",
-                       state[0], delimiter=", ", newline="\n")
+        energies = []
+        states = []
+        for phi in phi_list:
+            energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi)
+            energies.append(energy[0])
+            states.append(state[0])
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_EXACT_ENERGY",
+                       energies, delimiter=", ", newline="\n")
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_EXACT_STATE",
+                       states, delimiter=", ", newline="\n")
     
     for l in range(1, layers + 1):
         circuit = fun.create_circuit(N, Np, L, l)
         initial_parameters = np.random.uniform(0, 4 * np.pi, len(circuit.get_parameters()))
-        persistent_current_vector = []
-        energy_vector = []
+        persistent_currents = []
+        energies = []
         entropies = []
         parameters = []
         print("\n")
         print("Layers: ", l)
-        for i in phi:
-            print("Flux: ", i)
-            hamiltonian_jw = fun.FH_hamiltonian(N, L, closed, t, U, V, mu, i)
+        for phi in phi_list:
+            print("Flux: ", phi)
+            hamiltonian_jw = fun.FH_hamiltonian(N, L, closed, t, U, V, mu, phi)
             vqe = models.VQE(circuit, hamiltonian_jw)
-            best, params, _ = vqe.minimize(initial_parameters, method='BFGS', compile=False)
+            best, params, _ = vqe.minimize(initial_parameters, method='BFGS')
             print("Energy: ", best, "\n")
-            energy_vector.append(best)
-            parameters.append(params)
-            hamiltonian_persistent_current = fun.current_hamiltonian(N, L, closed, t, i)
+            hamiltonian_persistent_current = fun.current_hamiltonian(N, L, closed, t, phi)
             persistent_current = fun.compute_persistent_current(
                 params, circuit, hamiltonian_persistent_current)
-            persistent_current_vector.append(persistent_current)
             entropy_half = fun.entropy_half_chain(params, N, Np, L, l)
+
+            energies.append(best)
+            persistent_currents.append(persistent_current)
+            parameters.append(params)
             entropies.append(entropy_half)
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_{l}_layers_CURRENT",
+                       persistent_currents, delimiter=", ", newline="\n")
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_{l}_layers_ENERGY",
+                       energies, delimiter=", ", newline="\n")
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_{l}_layers_ENTROPY",
+                       entropies, delimiter=", ", newline="\n")
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_{l}_layers_PARAMETERS",
+                       parameters, delimiter=", ", newline="\n")
+
             if perturb:
                 initial_parameters = 0.001 * np.pi * np.random.normal(size=len(params)) + params
             else:
                 initial_parameters = params
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_(1,1,1)_CURRENT",
-                       persistent_current_vector, delimiter=", ", newline="\n")
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_(1,1,1)_ENERGY",
-                       energy_vector, delimiter=", ", newline="\n")
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_(1,1,1)_ENTROPY",
-                       entropies, delimiter=", ", newline="\n")
-            np.savetxt(f"data_vqe/{N}_{L}_Hubbard_{l}_layers_U_{U}_V_{V}_(1,1,1)_PARAMETERS",
-                       parameters, delimiter=", ", newline="\n")
 
 
 if __name__ == "__main__":

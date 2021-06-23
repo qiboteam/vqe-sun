@@ -187,7 +187,7 @@ def generate_spin_pc_operators(N, L, closed=True, t=None, phi=0., Z_replace=Fals
     
     ops = []
     # Hopping terms
-    term = 1j * 2 * np.pi / L
+    term = 2j * np.pi / L
     phase = term * phi
     for r in range(r_t):
         if t_[r] != 0:
