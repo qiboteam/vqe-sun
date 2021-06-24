@@ -44,18 +44,23 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
     closed = not open_chain
     if Np == -1:
         Np = [1 for _ in range(N)]
-    if exact:
+    if exact:  # Calculate exact quantities and save them
         import quspin_functions as qfun
         energies = []
         states = []
+        persistent_currents = []
         for phi in phi_list:
             energy, state = qfun.exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi)
+            persistent_current = qfun.exact_pc(N, L, Np, closed, t, phi)
             energies.append(energy[0])
             states.append(state[0])
+            persistent_currents.append(persistent_current)
             np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_EXACT_ENERGY",
                        energies, delimiter=", ", newline="\n")
             np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_EXACT_STATE",
                        states, delimiter=", ", newline="\n")
+            np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_EXACT_CURRENT",
+                       persistent_currents, delimiter=", ", newline="\n")
     
     for l in range(1, layers + 1):
         circuit = fun.create_circuit(N, Np, L, l)
@@ -76,7 +81,7 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
             persistent_current = fun.compute_persistent_current(
                 params, circuit, hamiltonian_persistent_current)
             entropy_half = fun.entropy_half_chain(params, N, Np, L, l)
-
+            
             energies.append(best)
             persistent_currents.append(persistent_current)
             parameters.append(params)
@@ -89,7 +94,7 @@ def main(N, Np, L, t, U, V, mu, layers, phi_max, phi_num, backend, exact, pertur
                        entropies, delimiter=", ", newline="\n")
             np.savetxt(f"data_vqe/{N}_{L}_{Np}_{U}_{V}_Hubbard_{l}_layers_PARAMETERS",
                        parameters, delimiter=", ", newline="\n")
-
+            
             if perturb:
                 initial_parameters = 0.001 * np.pi * np.random.normal(size=len(params)) + params
             else:

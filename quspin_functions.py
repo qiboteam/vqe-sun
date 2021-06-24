@@ -10,10 +10,11 @@ from quspin.basis import spinless_fermion_basis_1d, spin_basis_1d, tensor_basis
 from quspin.operators import hamiltonian
 
 
-def generate_fermion_basis(L, Np):
+def generate_fermion_basis(L, Np):  # Function to generate the Hamiltonian in the fermionic basis
     return tensor_basis(*(spinless_fermion_basis_1d(L, Nf=N) for N in Np))
 
 
+# Function to generate the operators for the Hamiltonian in the fermionic basis
 def generate_fermion_operators(N, L, closed=True, t=None, V=None, U=1., mu=0., phi=0.):
     if t is None:
         t_ = [1]
@@ -81,10 +82,11 @@ def generate_fermion_operators(N, L, closed=True, t=None, V=None, U=1., mu=0., p
     return ops, 0
 
 
-def generate_spin_basis(L, Np):
+def generate_spin_basis(L, Np):  # Function to generate the Hamiltonian in the spin basis
     return tensor_basis(*(spin_basis_1d(L, Nup=L - N, pauli=-1) for N in Np))
 
 
+# Function to generate the operators for the Hamiltonian in the spin basis
 def generate_spin_operators(N, L, closed=True, t=None, V=None, U=1., mu=0., phi=0.,
                             Z_replace=False, Np=None):
     if t is None:
@@ -224,8 +226,8 @@ def generate_spin_pc_operators(N, L, closed=True, t=None, phi=0., Z_replace=Fals
     return ops, 0
 
 
-# Helper function to calculate energies and eigenstates
-def exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi, basis=None, full_basis=False, k=6, l=3):
+# Helper function to calculate exact energies and eigenstates
+def exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi, basis=None, full_basis=False):
     if basis:
         N = len(basis.N)
     else:
@@ -234,39 +236,31 @@ def exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi, basis=None, full_basis
     static, C = generate_spin_operators(N, L, closed, t, V, U, mu, phi)
     
     no_checks = dict(check_symm=False, check_pcon=False, check_herm=False)
-    H = hamiltonian(static, [], N=L * N, basis=basis, **no_checks)
+    H = hamiltonian(static, [], N=N * L, basis=basis, **no_checks)
     
-    try:
-        w, v = H.eigsh(k=k + l, which='SA')
-    except:
-        w, v = H.eigh()
+    w, v = H.eigh()
     eigenstates = np.array([i for _, i in sorted(zip(w, np.transpose(v)), key=lambda x: x[0])])
     energies = sorted(w) + C
     
     if full_basis:
         eigenstates = [basis.project_from(i, sparse=False) for i in eigenstates]
     
-    return energies[:k], eigenstates[:k]
+    return energies, eigenstates
 
 
-def exact_pc(N, L, Np, closed, t, V, U, mu, phi, full_basis=False, k=6, l=3):
+# Helper function to calculate exact persistent currents
+def exact_pc(N, L, Np, closed, t, phi):
     basis = generate_spin_basis(L, Np)
     
     static, _ = generate_spin_pc_operators(N, L, closed, t, phi)
     
     no_checks = dict(check_symm=False, check_pcon=False, check_herm=False)
-    pc_H = hamiltonian(static, [], N=L * N, basis=basis, **no_checks)
+    pc_H = hamiltonian(static, [], N=N * L, basis=basis, **no_checks)
     
-    _, eigenstates = exact_eigenstates(N, L, Np, closed, t, V, U, mu, phi, full_basis=full_basis,
-                                       k=k, l=l)
-    ground_state = eigenstates[0]
-    
-    pc = pc_H.expt_value(ground_state)
+    _, eigenstates = exact_eigenstates(N, L, Np, closed, t, 0, 0, 0, phi)
+    pc = pc_H.expt_value(eigenstates[0])
     
     if isinstance(pc, complex):
         pc = pc.real
     
-    if np.abs(pc) > 1e-10:
-        return pc
-    
-    return 0
+    return pc

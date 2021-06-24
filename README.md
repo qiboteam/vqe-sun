@@ -43,4 +43,4 @@ In order to recover the results for the VQE for SU(N) fermions, the file `main.p
 
 **Returns**
 
-Text files containing the computed values for the `ENERGY`, `CURRENT` and `ENTROPY` for the Variational Quantum Eigensolver as well as the final optimized `PARAMETERS`. For the exact diagonalization, the `EXACT_ENERGY` and `EXACT_STATE` are returned in a text file as well.
+Text files containing the computed values for the `ENERGY`, `CURRENT` and `ENTROPY` for the Variational Quantum Eigensolver as well as the final optimized `PARAMETERS`. For the exact diagonalization, the `EXACT_ENERGY`, `EXACT_STATE` and `EXACT_CURRENT` are returned in a text file as well.
